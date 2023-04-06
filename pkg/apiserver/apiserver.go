@@ -91,6 +91,7 @@ import (
 	tenantv1alpha3 "kubesphere.io/kubesphere/pkg/kapis/tenant/v1alpha3"
 	terminalv1alpha2 "kubesphere.io/kubesphere/pkg/kapis/terminal/v1alpha2"
 	"kubesphere.io/kubesphere/pkg/kapis/version"
+	vpcv1 "kubesphere.io/kubesphere/pkg/kapis/vpc/v1"
 	"kubesphere.io/kubesphere/pkg/models/auth"
 	"kubesphere.io/kubesphere/pkg/models/iam/am"
 	"kubesphere.io/kubesphere/pkg/models/iam/group"
@@ -211,7 +212,8 @@ func (s *APIServer) installMetricsAPI() {
 
 // Install all kubesphere api groups
 // Installation happens before all informers start to cache objects, so
-//   any attempt to list objects using listers will get empty results.
+//
+//	any attempt to list objects using listers will get empty results.
 func (s *APIServer) installKubeSphereAPIs(stopCh <-chan struct{}) {
 	imOperator := im.NewOperator(s.KubernetesClient.KubeSphere(),
 		user.New(s.InformerFactory.KubeSphereSharedInformerFactory(),
@@ -270,6 +272,7 @@ func (s *APIServer) installKubeSphereAPIs(stopCh <-chan struct{}) {
 		s.KubernetesClient.KubeSphere()))
 	urlruntime.Must(notificationkapisv2beta2.AddToContainer(s.container, s.Config.NotificationOptions))
 	urlruntime.Must(gatewayv1alpha1.AddToContainer(s.container, s.Config.GatewayOptions, s.RuntimeCache, s.RuntimeClient, s.InformerFactory, s.KubernetesClient.Kubernetes(), s.LoggingClient))
+	urlruntime.Must(vpcv1.AddToContainer(s.container, s.InformerFactory.KubeSphereSharedInformerFactory()))
 }
 
 // installCRDAPIs Install CRDs to the KAPIs with List and Get options
