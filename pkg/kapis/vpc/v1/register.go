@@ -29,6 +29,7 @@ import (
 	kubesphere "kubesphere.io/kubesphere/pkg/client/clientset/versioned"
 	"kubesphere.io/kubesphere/pkg/constants"
 	"kubesphere.io/kubesphere/pkg/informers"
+	"kubesphere.io/kubesphere/pkg/server/errors"
 	"kubesphere.io/kubesphere/pkg/simple/client/events"
 )
 
@@ -61,8 +62,15 @@ func AddToContainer(container *restful.Container, factory informers.InformerFact
 	webservice.Route(webservice.POST("/vpcnetwork").
 		To(handler.createVpcNetwork).
 		Reads(vpcv1.VPCNetwork{}).
-		Returns(http.StatusOK, api.StatusOK, v1.VPCNetwork{}).
 		Doc("Create vpcnetwork").
+		Returns(http.StatusOK, api.StatusOK, v1.VPCNetwork{}).
+		Metadata(restfulspec.KeyOpenAPITags, []string{constants.VpcNetworkTag}))
+
+	webservice.Route(webservice.DELETE("/vpcnetwork/{vpcnetwork}").
+		To(handler.deleteVpcNetwork).
+		Param(webservice.PathParameter("vpcnetwork", "vpcnetwork name")).
+		Doc("Delete vpcnetwork").
+		Returns(http.StatusOK, api.StatusOK, errors.None).
 		Metadata(restfulspec.KeyOpenAPITags, []string{constants.VpcNetworkTag}))
 
 	container.Add(webservice)

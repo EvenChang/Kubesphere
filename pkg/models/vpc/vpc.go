@@ -39,6 +39,7 @@ type Interface interface {
 	GetVpcNetwork(vpcnetwork string) (*vpcv1.VPCNetwork, error)
 	ListVpcNetwork(query *query.Query) (*api.ListResult, error)
 	CreateVpcNetwork(vpcnetwork *vpcv1.VPCNetwork) (*vpcv1.VPCNetwork, error)
+	DeleteVpcNetwork(vpcnetwork string) error
 }
 
 type vpcOperator struct {
@@ -76,4 +77,8 @@ func (t *vpcOperator) GetVpcNetwork(vpcnetwork string) (*vpcv1.VPCNetwork, error
 
 func (t *vpcOperator) CreateVpcNetwork(vpcnetwork *vpcv1.VPCNetwork) (*vpcv1.VPCNetwork, error) {
 	return t.ksclient.K8sV1().VPCNetworks().Create(context.Background(), vpcnetwork, metav1.CreateOptions{})
+}
+
+func (t *vpcOperator) DeleteVpcNetwork(vpcnetwork string) error {
+	return t.ksclient.K8sV1().VPCNetworks().Delete(context.Background(), vpcnetwork, metav1.DeleteOptions{})
 }

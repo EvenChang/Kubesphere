@@ -27,6 +27,7 @@ import (
 	vpclister "kubesphere.io/kubesphere/pkg/client/listers/vpc/v1"
 	"kubesphere.io/kubesphere/pkg/informers"
 	"kubesphere.io/kubesphere/pkg/models/vpc"
+	servererr "kubesphere.io/kubesphere/pkg/server/errors"
 	"kubesphere.io/kubesphere/pkg/simple/client/events"
 )
 
@@ -105,6 +106,23 @@ func (h *handler) createVpcNetwork(request *restful.Request, response *restful.R
 	}
 
 	response.WriteEntity(created)
+}
+
+func (h *handler) deleteVpcNetwork(request *restful.Request, response *restful.Response) {
+	vpcnetwork := request.PathParameter("vpcnetwork")
+
+	err := h.vpc.DeleteVpcNetwork(vpcnetwork)
+
+	if err != nil {
+		if errors.IsNotFound(err) {
+			api.HandleNotFound(response, request, err)
+			return
+		}
+		api.HandleInternalError(response, request, err)
+		return
+	}
+
+	response.WriteEntity(servererr.None)
 }
 
 type vpcResponse struct {
