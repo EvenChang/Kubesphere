@@ -29,6 +29,12 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/scheme"
 )
 
+const (
+	ResourceKindVpcNetworks    = "VPCNetwork"
+	ResourceSingularVpcNetwork = "vpcnetwork"
+	ResourcePluralVpcNetworks  = "vpcnetworks"
+)
+
 var (
 	// SchemeGroupVersion is group version used to register these objects
 	SchemeGroupVersion = schema.GroupVersion{Group: "k8s.ovn.org", Version: "v1"}

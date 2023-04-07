@@ -20,11 +20,16 @@ import (
 	"net/http"
 
 	"github.com/emicklei/go-restful"
+	restfulspec "github.com/emicklei/go-restful-openapi"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	v1 "kubesphere.io/api/vpc/v1"
+	vpcv1 "kubesphere.io/api/vpc/v1"
 	"kubesphere.io/kubesphere/pkg/api"
 	"kubesphere.io/kubesphere/pkg/apiserver/runtime"
-	"kubesphere.io/kubesphere/pkg/client/informers/externalversions"
+	kubesphere "kubesphere.io/kubesphere/pkg/client/clientset/versioned"
+	"kubesphere.io/kubesphere/pkg/constants"
+	"kubesphere.io/kubesphere/pkg/informers"
+	"kubesphere.io/kubesphere/pkg/simple/client/events"
 )
 
 const (
@@ -37,15 +42,22 @@ func Resource(resource string) schema.GroupResource {
 	return GroupVersion.WithResource(resource).GroupResource()
 }
 
-func AddToContainer(container *restful.Container, ksInformers externalversions.SharedInformerFactory) error {
+func AddToContainer(container *restful.Container, factory informers.InformerFactory, ksclient kubesphere.Interface, evtsClient events.Client) error {
 	webservice := runtime.NewWebService(GroupVersion)
-	handler := newHandler(ksInformers)
+	handler := newHandler(factory, ksclient, evtsClient)
 
-	webservice.Route(webservice.GET("/vpc").
-		Reads("").
+	webservice.Route(webservice.GET("/vpcnetworks").
 		To(handler.getVpcNetwork).
-		Returns(http.StatusOK, api.StatusOK, v1.VPCNetworkSpec{})).
-		Doc("Api for vpcnetowkrs")
+		Doc("List all vpcnetowkrs resources").
+		Returns(http.StatusOK, api.StatusOK, v1.VPCNetworkSpec{}).
+		Metadata(restfulspec.KeyOpenAPITags, []string{constants.VpcNetworkTag}))
+
+	webservice.Route(webservice.POST("/vpcnetwork").
+		To(handler.createVpcNetwork).
+		Reads(vpcv1.VPCNetwork{}).
+		Returns(http.StatusOK, api.StatusOK, v1.VPCNetwork{}).
+		Doc("Create vpcnetwork").
+		Metadata(restfulspec.KeyOpenAPITags, []string{constants.VpcNetworkTag}))
 
 	container.Add(webservice)
 

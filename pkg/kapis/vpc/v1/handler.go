@@ -19,25 +19,31 @@ package v1
 import (
 	"github.com/emicklei/go-restful"
 	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/klog"
+	vpcv1 "kubesphere.io/api/vpc/v1"
 	"kubesphere.io/kubesphere/pkg/api"
 	"kubesphere.io/kubesphere/pkg/apiserver/query"
-	"kubesphere.io/kubesphere/pkg/client/informers/externalversions"
+	kubesphere "kubesphere.io/kubesphere/pkg/client/clientset/versioned"
 	vpclister "kubesphere.io/kubesphere/pkg/client/listers/vpc/v1"
+	"kubesphere.io/kubesphere/pkg/informers"
+	"kubesphere.io/kubesphere/pkg/models/vpc"
+	"kubesphere.io/kubesphere/pkg/simple/client/events"
 )
 
 type handler struct {
+	vpc       vpc.Interface
 	vpcLister vpclister.VPCNetworkLister
 }
 
-func newHandler(ksInformers externalversions.SharedInformerFactory) *handler {
+func newHandler(factory informers.InformerFactory, ksclient kubesphere.Interface, evtsClient events.Client) *handler {
 	return &handler{
-		vpcLister: ksInformers.K8s().V1().VPCNetworks().Lister(),
+		vpc: vpc.New(factory, ksclient, evtsClient),
 	}
 }
 
 func (h *handler) getVpcNetwork(request *restful.Request, response *restful.Response) {
 
-	vpcnetworks, err := h.vpcLister.List(query.New().Selector())
+	vpcnetworks, err := h.vpc.ListVpcNetwork(query.New())
 
 	if err != nil {
 		if errors.IsNotFound(err) {
@@ -50,6 +56,37 @@ func (h *handler) getVpcNetwork(request *restful.Request, response *restful.Resp
 	}
 
 	response.WriteAsJson(vpcnetworks)
+}
+
+func (h *handler) createVpcNetwork(request *restful.Request, response *restful.Response) {
+
+	var vpcnetwork vpcv1.VPCNetwork
+
+	err := request.ReadEntity(&vpcnetwork)
+
+	if err != nil {
+		klog.Error(err)
+		api.HandleBadRequest(response, request, err)
+		return
+	}
+
+	created, err := h.vpc.CreateVpcNetwork(&vpcnetwork)
+
+	if err != nil {
+		klog.Error(err)
+		if errors.IsNotFound(err) {
+			api.HandleNotFound(response, request, err)
+			return
+		}
+		if errors.IsForbidden(err) {
+			api.HandleForbidden(response, request, err)
+			return
+		}
+		api.HandleBadRequest(response, request, err)
+		return
+	}
+
+	response.WriteEntity(created)
 }
 
 type vpcResponse struct {

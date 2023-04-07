@@ -142,6 +142,8 @@ const (
 	NotificationManagedLabel    = "notification.kubesphere.io/managed"
 
 	DashboardTag = "Dashboard"
+
+	VpcNetworkTag = "VPC Network"
 )
 
 var (

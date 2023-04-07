@@ -40,6 +40,7 @@ import (
 	tenantv1alpha1 "kubesphere.io/api/tenant/v1alpha1"
 	tenantv1alpha2 "kubesphere.io/api/tenant/v1alpha2"
 	typesv1beta1 "kubesphere.io/api/types/v1beta1"
+	vpcv1 "kubesphere.io/api/vpc/v1"
 
 	"kubesphere.io/kubesphere/pkg/api"
 	"kubesphere.io/kubesphere/pkg/apiserver/query"
@@ -87,6 +88,7 @@ import (
 	"kubesphere.io/kubesphere/pkg/models/resources/v1alpha3/statefulset"
 	"kubesphere.io/kubesphere/pkg/models/resources/v1alpha3/user"
 	"kubesphere.io/kubesphere/pkg/models/resources/v1alpha3/volumesnapshot"
+	"kubesphere.io/kubesphere/pkg/models/resources/v1alpha3/vpc"
 	"kubesphere.io/kubesphere/pkg/models/resources/v1alpha3/workspace"
 	"kubesphere.io/kubesphere/pkg/models/resources/v1alpha3/workspacerole"
 	"kubesphere.io/kubesphere/pkg/models/resources/v1alpha3/workspacerolebinding"
@@ -158,6 +160,9 @@ func NewResourceGetter(factory informers.InformerFactory, cache cache.Cache) *Re
 	namespacedResourceGetters[typesv1beta1.SchemeGroupVersion.WithResource(typesv1beta1.ResourcePluralFederatedStatefulSet)] = federatedstatefulset.New(factory.KubeSphereSharedInformerFactory())
 	namespacedResourceGetters[typesv1beta1.SchemeGroupVersion.WithResource(typesv1beta1.ResourcePluralFederatedIngress)] = federatedingress.New(factory.KubeSphereSharedInformerFactory())
 	namespacedResourceGetters[monitoringdashboardv1alpha2.GroupVersion.WithResource("dashboards")] = dashboard.New(cache)
+
+	// extension resources
+	clusterResourceGetters[vpcv1.SchemeGroupVersion.WithResource(vpcv1.ResourcePluralVpcNetworks)] = vpc.New(factory.KubeSphereSharedInformerFactory())
 
 	return &ResourceGetter{
 		namespacedResourceGetters: namespacedResourceGetters,
