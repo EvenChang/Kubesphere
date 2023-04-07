@@ -47,9 +47,15 @@ func AddToContainer(container *restful.Container, factory informers.InformerFact
 	handler := newHandler(factory, ksclient, evtsClient)
 
 	webservice.Route(webservice.GET("/vpcnetworks").
-		To(handler.getVpcNetwork).
+		To(handler.listVpcNetwork).
 		Doc("List all vpcnetowkrs resources").
-		Returns(http.StatusOK, api.StatusOK, v1.VPCNetworkSpec{}).
+		Returns(http.StatusOK, api.StatusOK, api.ListResult{}).
+		Metadata(restfulspec.KeyOpenAPITags, []string{constants.VpcNetworkTag}))
+
+	webservice.Route(webservice.GET("/vpcnetwork/{vpcnetwork}").
+		To(handler.getVpcNetwork).
+		Doc("Get vpcnetowkrs resources").
+		Returns(http.StatusOK, api.StatusOK, api.ListResult{}).
 		Metadata(restfulspec.KeyOpenAPITags, []string{constants.VpcNetworkTag}))
 
 	webservice.Route(webservice.POST("/vpcnetwork").

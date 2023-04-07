@@ -505,6 +505,10 @@ func (s *APIServer) waitForResourceSync(ctx context.Context) error {
 			notificationv2beta1.ResourcesPluralConfig,
 			notificationv2beta1.ResourcesPluralReceiver,
 		},
+		// VPC extension.
+		{Group: "k8s.ovn.org", Version: "v1"}: {
+			"vpcnetworks",
+		},
 	}
 
 	// skip caching devops resources if devops not enabled

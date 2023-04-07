@@ -41,7 +41,7 @@ func newHandler(factory informers.InformerFactory, ksclient kubesphere.Interface
 	}
 }
 
-func (h *handler) getVpcNetwork(request *restful.Request, response *restful.Response) {
+func (h *handler) listVpcNetwork(request *restful.Request, response *restful.Response) {
 
 	vpcnetworks, err := h.vpc.ListVpcNetwork(query.New())
 
@@ -56,6 +56,24 @@ func (h *handler) getVpcNetwork(request *restful.Request, response *restful.Resp
 	}
 
 	response.WriteAsJson(vpcnetworks)
+}
+
+func (h *handler) getVpcNetwork(request *restful.Request, response *restful.Response) {
+
+	vpcnetwork := request.PathParameter("vpcnetwork")
+	vpc, err := h.vpc.GetVpcNetwork(vpcnetwork)
+
+	if err != nil {
+		if errors.IsNotFound(err) {
+			api.HandleNotFound(response, request, err)
+			return
+		} else {
+			api.HandleInternalError(response, request, err)
+			return
+		}
+	}
+
+	response.WriteAsJson(vpc)
 }
 
 func (h *handler) createVpcNetwork(request *restful.Request, response *restful.Response) {
