@@ -272,7 +272,7 @@ func (s *APIServer) installKubeSphereAPIs(stopCh <-chan struct{}) {
 		s.KubernetesClient.KubeSphere()))
 	urlruntime.Must(notificationkapisv2beta2.AddToContainer(s.container, s.Config.NotificationOptions))
 	urlruntime.Must(gatewayv1alpha1.AddToContainer(s.container, s.Config.GatewayOptions, s.RuntimeCache, s.RuntimeClient, s.InformerFactory, s.KubernetesClient.Kubernetes(), s.LoggingClient))
-	urlruntime.Must(vpcv1.AddToContainer(s.container, s.InformerFactory, s.KubernetesClient.KubeSphere(), s.EventsClient))
+	urlruntime.Must(vpcv1.AddToContainer(s.container, s.InformerFactory, s.KubernetesClient.KubeSphere()))
 }
 
 // installCRDAPIs Install CRDs to the KAPIs with List and Get options

@@ -28,7 +28,6 @@ import (
 	"kubesphere.io/kubesphere/pkg/informers"
 	"kubesphere.io/kubesphere/pkg/models/vpc"
 	servererr "kubesphere.io/kubesphere/pkg/server/errors"
-	"kubesphere.io/kubesphere/pkg/simple/client/events"
 )
 
 type handler struct {
@@ -36,9 +35,9 @@ type handler struct {
 	vpcLister vpclister.VPCNetworkLister
 }
 
-func newHandler(factory informers.InformerFactory, ksclient kubesphere.Interface, evtsClient events.Client) *handler {
+func newHandler(factory informers.InformerFactory, ksclient kubesphere.Interface) *handler {
 	return &handler{
-		vpc: vpc.New(factory, ksclient, evtsClient),
+		vpc: vpc.New(factory, ksclient),
 	}
 }
 

@@ -30,7 +30,6 @@ import (
 	"kubesphere.io/kubesphere/pkg/constants"
 	"kubesphere.io/kubesphere/pkg/informers"
 	"kubesphere.io/kubesphere/pkg/server/errors"
-	"kubesphere.io/kubesphere/pkg/simple/client/events"
 )
 
 const (
@@ -43,9 +42,9 @@ func Resource(resource string) schema.GroupResource {
 	return GroupVersion.WithResource(resource).GroupResource()
 }
 
-func AddToContainer(container *restful.Container, factory informers.InformerFactory, ksclient kubesphere.Interface, evtsClient events.Client) error {
+func AddToContainer(container *restful.Container, factory informers.InformerFactory, ksclient kubesphere.Interface) error {
 	webservice := runtime.NewWebService(GroupVersion)
-	handler := newHandler(factory, ksclient, evtsClient)
+	handler := newHandler(factory, ksclient)
 
 	webservice.Route(webservice.GET("/vpcnetworks").
 		To(handler.listVpcNetwork).

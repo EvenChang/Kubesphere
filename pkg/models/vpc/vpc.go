@@ -28,9 +28,7 @@ import (
 	"kubesphere.io/kubesphere/pkg/apiserver/query"
 	kubesphere "kubesphere.io/kubesphere/pkg/client/clientset/versioned"
 	"kubesphere.io/kubesphere/pkg/informers"
-	"kubesphere.io/kubesphere/pkg/models/events"
 	resourcesv1alpha3 "kubesphere.io/kubesphere/pkg/models/resources/v1alpha3/resource"
-	eventsclient "kubesphere.io/kubesphere/pkg/simple/client/events"
 )
 
 const orphanFinalizer = "orphan.finalizers.kubesphere.io"
@@ -45,14 +43,12 @@ type Interface interface {
 type vpcOperator struct {
 	ksclient       kubesphere.Interface
 	resourceGetter *resourcesv1alpha3.ResourceGetter
-	events         events.Interface
 }
 
-func New(informers informers.InformerFactory, ksclient kubesphere.Interface, evtsClient eventsclient.Client) Interface {
+func New(informers informers.InformerFactory, ksclient kubesphere.Interface) Interface {
 	return &vpcOperator{
 		resourceGetter: resourcesv1alpha3.NewResourceGetter(informers, nil),
 		ksclient:       ksclient,
-		events:         events.NewEventsOperator(evtsClient),
 	}
 }
 
